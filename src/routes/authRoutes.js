@@ -28,4 +28,22 @@ router.post(
   authCtrl.login
 );
 
+router.post(
+  '/forgot-password',
+  [body('email').isEmail().withMessage('Valid email required')],
+  validate,
+  authCtrl.forgotPassword
+);
+
+router.patch(
+  '/reset-password/:token',
+  [
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters'),
+  ],
+  validate,
+  authCtrl.resetPassword
+);
+
 module.exports = router;

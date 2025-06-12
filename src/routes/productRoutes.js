@@ -30,7 +30,6 @@ router.post(
   prodCtrl.createProduct
 );
 
-/* تعديل / حذف */
 router
   .route('/:id')
   .patch(

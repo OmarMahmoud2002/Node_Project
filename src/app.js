@@ -10,6 +10,7 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoutes  = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use('/api/', limiter);
 app.use(morgan('dev'));
 
 // health-check
-app.get('/api/v1/ping', (req, res) =>
+app.get('/api/v1/ping', (_req, res) =>
   res.status(200).json({ status: 'ok', time: new Date().toISOString() })
 );
 
@@ -38,6 +39,7 @@ app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/cart',   cartRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/sellers', sellerRoutes);
+app.use('/api/v1/users', userRoutes);
 
 app.use(errorHandler);
 module.exports = app;

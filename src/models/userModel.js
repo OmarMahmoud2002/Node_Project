@@ -23,7 +23,7 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Password required'],
       minlength: 6,
-      select: false,               // لا يُعاد في الاستجابات
+      select: false,              
     },
     role: {                        // 'user' | 'seller' | 'admin'
       type: String,

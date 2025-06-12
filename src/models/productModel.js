@@ -15,7 +15,7 @@ const productSchema = new Schema(
       type: String,
       maxlength: 2000,
     },
-    photo: String,                // رابط Cloudinary أو مسار محلي
+    photo: String,                
     price: {
       type: Number,
       required: true,

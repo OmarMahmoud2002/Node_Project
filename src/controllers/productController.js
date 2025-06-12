@@ -3,7 +3,6 @@ const Product  = require('../models/productModel');
 const Seller   = require('../models/sellerModel');
 const ApiErr   = require('../utils/apiError');
 
-/* 1. إنشاء منتج (Seller أو Admin) */
 exports.createProduct = async (req, res, next) => {
   try {
     const sellerId = req.user.role === 'seller' ? req.user._id : req.body.sellerId;
@@ -21,24 +20,32 @@ exports.createProduct = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const { 
-      q, 
-      page = 1, 
-      limit = 10, 
+    const {
+      q,
+      page = 1,
+      limit = 10,
       sort = '-createdAt',
       minPrice,
       maxPrice,
       inStock,
-      sellerId 
-    } = req.query;                    
-    
-    const query = {};
+      sellerId
+    } = req.query;
 
-    // Text search
+    let query = {};
+
+    // Text search - improved to include seller name search
     if (q) {
+      // First, find sellers that match the search query
+      const matchingSellers = await Seller.find({
+        storeName: { $regex: q, $options: 'i' }
+      }).select('_id');
+
+      const sellerIds = matchingSellers.map(seller => seller._id);
+
       query.$or = [
         { name: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } }
+        { description: { $regex: q, $options: 'i' } },
+        { sellerId: { $in: sellerIds } }
       ];
     }
 
@@ -57,22 +64,21 @@ exports.getProducts = async (req, res, next) => {
     if (sellerId) query.sellerId = sellerId;
 
     const skip = (page - 1) * limit;
-    
+
     const [products, total] = await Promise.all([
       Product.find(query)
         .sort(sort)
         .skip(skip)
         .limit(parseInt(limit))
-        .populate({
-          path: 'sellerId',
-          select: 'storeName',
-          match: q ? { storeName: { $regex: q, $options: 'i' } } : {},
-        }),
+        .populate('sellerId', 'storeName'),
       Product.countDocuments(query)
     ]);
 
+    // Filter out products where seller was not populated (in case of seller name search)
+    const filteredProducts = products.filter(product => product.sellerId);
+
     res.json({
-      products,
+      products: filteredProducts,
       currentPage: parseInt(page),
       totalPages: Math.ceil(total / limit),
       totalProducts: total
@@ -82,7 +88,6 @@ exports.getProducts = async (req, res, next) => {
   }
 };
 
-/* 3. منتج واحد بالمعرّف */
 exports.getProduct = async (req, res, next) => {
   try {
     const prod = await Product.findById(req.params.id).populate('sellerId', 'storeName');
@@ -93,7 +98,6 @@ exports.getProduct = async (req, res, next) => {
   }
 };
 
-/* 4. تعديل منتج (Seller مالكه أو Admin) */
 exports.updateProduct = async (req, res, next) => {
   try {
     let prod = await Product.findById(req.params.id);
@@ -110,7 +114,6 @@ exports.updateProduct = async (req, res, next) => {
   }
 };
 
-/* 5. حذف منتج */
 exports.deleteProduct = async (req, res, next) => {
   try {
     const prod = await Product.findById(req.params.id);

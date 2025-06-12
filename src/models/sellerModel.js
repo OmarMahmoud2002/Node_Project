@@ -15,7 +15,6 @@ const sellerSchema = new Schema(
       minlength: 2,
       maxlength: 100,
     },
-    // معلومات إضافية لاحقاً (عنوان، وصف المتجر…)
   },
   { timestamps: true }
 );

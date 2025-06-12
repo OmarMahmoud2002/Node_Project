@@ -40,7 +40,6 @@ exports.getAll = async (_req, res, next) => {
   } catch (err) { next(err); }
 };
 
-/* مستخدم واحد */
 exports.getOne = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
@@ -49,7 +48,6 @@ exports.getOne = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-/* حذف بواسطة الإدمن */
 exports.deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.id);

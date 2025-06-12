@@ -15,7 +15,7 @@ module.exports = async (req, _res, next) => {
     const user = await User.findById(decoded.id).select('+password');
     if (!user) throw new ApiErr(401, 'User no longer exists');
 
-    req.user = user;              // متاح في بقية السلسلة
+    req.user = user;             
     next();
   } catch (err) {
     next(err);
